@@ -616,7 +616,11 @@ class NgSpiceShared:
 
         # split message in "<prefix><match = ' '><content>"
         prefix, _, content = message.partition(' ')
-        if prefix == 'stderr':
+
+        # below we make exception when a stop has been requested
+        #TODO: make a more robust way to detect this
+        if prefix == 'stderr' and 'condition met' not in content and 'pause requested' not in content and 'simulation interrupted' not in content:
+        # if prefix == 'stderr':
             self._stderr.append(content)
             if content.startswith('Warning:'):
                 func = self._logger.warning
