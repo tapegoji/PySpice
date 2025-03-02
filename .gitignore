@@ -179,4 +179,3 @@ examples/spice-library/db.pickle
 test.cir
 
 .venv/*
-*.vscode/*
