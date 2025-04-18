@@ -8,21 +8,6 @@ from PySpice import Circuit, SubCircuit, SubCircuitFactory
 from PySpice.Spice.Parser.HighLevelParser import SpiceSource
 from PySpice.Spice.Parser import Translator
 from PySpice.Unit import *
-'''
-EGND1 99 0 POLY(2) (3,0) (4,0) 0 .5 .5
-EGND 99 0 4 5 1
-ENONLIN 100 101 POLY(2) 3 0 4 0 0.0 13.6 0.2 0.005
-'''
-raw_spice = '''
-ECMP 11 0 TABLE {V(10,9)} = (-5mV, 0V) (5mV, 5V)
-
-'''
-'''
-E41 4 0 value = {V(3)*V(3)-Offs}
-E41 4 0 vol = ’V(3)*V(3)-Offs’
-ELOPASS 4 0 LAPLACE {V(1)} {5 * (s/100 + 1) / (s^2/42000 + s/60 + 1)} {V(20,21)}= DB (1.000000e+07Hz, 1.633257e-07, -1.859873e+01)
-EAND out1 out0 and(2) in1 0 in2 0 (0.5, 0) (2.8, 3.3)
-'''
 
 raw_spice = '''
 *.tile Qucs 25.1.1  ...
@@ -91,14 +76,3 @@ bootstrap_circuit = Translator.Builder().translate(spice_source)
 bootstrap_source = str(bootstrap_circuit)
 print(bootstrap_source)
 # assert bootstrap_source == source
-
-circuit = Circuit('Test')
-circuit.NonLinearVoltageSource(1, 'output', circuit.gnd,
-                               expression='V(reference, comparator)',
-                               table=((-micro(1), 0),
-                                      (micro(1), 10))
-                               )
-circuit.NonLinearVoltageSource(2, '99', '0', raw_spice='POLY(2) (3,0) (4,0) 0 .5 .5')
-
-# assert bootstrap_source == source
-print(circuit)
