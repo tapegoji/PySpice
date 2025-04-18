@@ -303,6 +303,12 @@ class Element(Command):
     def __init__(self, line: SpiceLine, ast: AstNode) -> None:
         super().__init__(line, ast)
 
+        def is_linear_element(command_ast):               
+            for child in command_ast:
+                if not isinstance(child, (Ast.Id, Ast.Integer, Ast.Number)):
+                    return False   # found something complicated (like Function, Set, etc)
+            return True
+
         self._letter = ast.first_letter
         if not getattr(ElementLetters, self._letter):
             raise ParseError(f"Invalid element letter in element command @{line.str_location} {self._ast.name}")
@@ -322,7 +328,13 @@ class Element(Command):
         # data = ElementData.elements[self._letter]
         data = elements[self._letter]
         if not data.has_variable_number_of_pins:
-            number_of_pins = data.number_of_pins
+            if not data.multi_devices:
+                number_of_pins = data.number_of_pins
+            else:
+                if is_linear_element(ast):
+                    number_of_pins = data.number_of_pins
+                else:
+                    number_of_pins = len(data.classes[1].PINS)
         else:   # Q or X
             if first_set_position == -1:
                 number_of_pins = len(ast)
@@ -1072,8 +1084,18 @@ class SpiceSource:
                     last_command = last_line
 
     ##############################################
-
+    def _normalize_quotes(self, text: str) -> str:
+        """Normalize Unicode quotes to ASCII quotes."""
+        text = str(text)
+        return text.translate(str.maketrans({
+            '‘': "'", 
+            '’': "'",
+            '“': '"',
+            '”': '"'
+            }))
+    
     def parse(self) -> None:
+
         for line in self._lines:
             if line.is_comment:
                 self._ast_lines.append(None)

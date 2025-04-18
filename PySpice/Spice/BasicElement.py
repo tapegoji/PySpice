@@ -1053,6 +1053,8 @@ class NonLinearVoltageSource(DipoleElement):
             # TABLE {expression} = (x0, y0) (x1, y1) ...
             table = [f'({str_spice(x)}, {str_spice(y)})' for x, y in self.table]
             spice_element += ' TABLE {%s} = %s' % (self.expression, join_list(table))
+        elif self.raw_spice is not None:
+            spice_element += ' %s' % self.raw_spice
         return spice_element
 
 ####################################################################################################

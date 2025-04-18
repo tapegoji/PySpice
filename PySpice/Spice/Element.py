@@ -450,6 +450,7 @@ class Element(metaclass=ElementParameterMetaClass):
 
         # Process kwargs
         for key, value in kwargs.items():
+            key = key.lower()
             if key == 'raw_spice':
                 self.raw_spice = value
             elif (key in self._positional_parameters or

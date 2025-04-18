@@ -339,17 +339,6 @@ class SpiceParser:
         '''
         p[0] = Id(p[1])
     
-    # --------------------------------------------------------------------------------------
-    # CHANGED: Added this rule to handle patterns like "params:" in a .subckt line.
-    # Example: .subckt genopa1 in+ in- vcc vee out params: POLE=20 ...
-    # def p_NODES_id_colon(self, p):
-    #     '''expression : ID COLON
-    #     '''
-    #     # Treat "params:" (or any ID followed by a colon) as a single expression.
-    #     p[0] = Id(p[1] + ':')
-        
-    # # ---
-    
     def p_uminus(self, p):
         '''expression : MINUS expression %prec UMINUS'''
         # %prec UMINUS overrides the default rule precedence-setting it to that of UMINUS in the precedence specifier.
@@ -409,14 +398,20 @@ class SpiceParser:
         p[0] = QuoteGroup(p[2])
 
     def p_expression_list_space(self, p):
-        '''expression_list_space : expression
-                                 | expression_list_space expression
+        '''expression_list_space : item
+                                | expression_list_space item
         '''
-        if len(p) == 3:
+        if len(p) == 2:
+            p[0] = SpaceList(p[1])
+        else:
             p[1].append(p[2])
             p[0] = p[1]
-        else:
-            p[0] = SpaceList(p[1])
+    def p_item(self, p):
+        '''item : expression
+                | tuple
+        '''
+        p[0] = p[1]
+
 
     def p_expression_list_comma(self, p):
         '''expression_list_comma : expression
